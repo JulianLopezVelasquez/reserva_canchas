@@ -9,6 +9,7 @@ import {
     TouchableOpacity 
 } from 'react-native';
 import api from '../api/api';
+import { colors, spacing, radius, globalStyles } from '../styles/Theme';
 
 const HorariosScreen = ({ route, navigation }) => {
     const { 
@@ -83,26 +84,65 @@ const HorariosScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#fff', padding: 20 },
-    header: { marginBottom: 20, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: '#eee' },
-    title: { fontSize: 22, fontWeight: 'bold', color: '#2c3e50' },
-    subtitle: { fontSize: 16, color: '#7f8c8d' },
-    card: { 
-        flexDirection: 'row', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        padding: 15, 
-        backgroundColor: '#f8f9fa', 
-        borderRadius: 10, 
-        marginBottom: 10 
+    container: {
+        ...globalStyles.screen,
+        padding: spacing.lg,
     },
-    hora: { fontSize: 16, fontWeight: '600' },
-    btn: { paddingVertical: 8, paddingHorizontal: 15, borderRadius: 5 },
-    btnOk: { backgroundColor: '#2ecc71' },
-    btnNo: { backgroundColor: '#95a5a6' },
-    btnText: { color: 'white', fontWeight: 'bold' },
-    back: { backgroundColor: '#34495e', padding: 15, borderRadius: 10, alignItems: 'center', marginTop: 10 },
-    empty: { textAlign: 'center', marginTop: 50, color: '#999' }
+    header: {
+        marginBottom: spacing.lg,
+    },
+    title: {
+        fontSize: 26,
+        fontWeight: '900',
+        color: colors.primaryLight,
+    },
+    subtitle: {
+        fontSize: 16,
+        color: colors.textMuted,
+        marginTop: spacing.xs,
+    },
+    card: {
+        ...globalStyles.card,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: spacing.md,
+        marginBottom: spacing.sm,
+        backgroundColor: '#0f1a3d',
+        borderColor: 'rgba(148,163,184,0.16)',
+    },
+    hora: {
+        fontSize: 17,
+        fontWeight: '800',
+        color: colors.secondary,
+    },
+    btn: {
+        paddingVertical: spacing.sm,
+        paddingHorizontal: spacing.lg,
+        borderRadius: radius.rounded,
+    },
+    btnOk: {
+        backgroundColor: colors.accent,
+    },
+    btnNo: {
+        backgroundColor: '#34415e',
+    },
+    btnText: {
+        color: '#fff',
+        fontWeight: '700',
+    },
+    back: {
+        backgroundColor: '#15264d',
+        padding: spacing.sm,
+        borderRadius: radius.rounded,
+        alignItems: 'center',
+        marginTop: spacing.md,
+    },
+    empty: {
+        textAlign: 'center',
+        marginTop: spacing.xl,
+        color: colors.textMuted,
+    },
 });
 
 export default HorariosScreen;

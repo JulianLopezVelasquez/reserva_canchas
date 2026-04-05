@@ -2,66 +2,132 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import api from '../api/api';
+import { colors, spacing, radius, globalStyles } from '../styles/Theme';
 
 export default function LoginScreen({ navigation }) {
     const [correo, setCorreo] = useState('');
     const [contrasena, setContrasena] = useState('');
 
     useEffect(() => {
-        const limpiarCaché = async () => {
-            await SecureStore.deleteItemAsync('userToken');
+        const checkToken = async () => {
+            const token = await SecureStore.getItemAsync('userToken');
+            if (token) {
+                navigation.replace('Main');
+            }
         };
-        limpiarCaché();
+        checkToken();
     }, []);
 
     const handleLogin = async () => {
+        // Validaciones básicas
         if (!correo || !contrasena) {
-            Alert.alert("Error", "Por favor llena todos los campos");
+            Alert.alert("Campos requeridos", "Por favor completa tu correo y contraseña");
             return;
         }
+        
+        // Validar formato de correo
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(correo)) {
+            Alert.alert("Correo inválido", "Por favor ingresa un correo electrónico válido");
+            return;
+        }
+        
+        if (contrasena.length < 6) {
+            Alert.alert("Contraseña inválida", "La contraseña debe tener al menos 6 caracteres");
+            return;
+        }
+
         try {
             const response = await api.post('/auth/login', { correo, contrasena });
             const token = response.data.token;
-            
+            const usuario = response.data.usuario;
 
             await SecureStore.setItemAsync('userToken', token);
+            await SecureStore.setItemAsync('userData', JSON.stringify(usuario));
             
-            navigation.replace('Home'); 
+            navigation.replace('Main'); 
         } catch (error) {
             console.log("Error Login:", error.response?.status);
-            Alert.alert("Error", "Credenciales incorrectas o error de conexión");
+            const mensajeError = error.response?.data?.message || "Credenciales incorrectas. Verifica tu correo y contraseña.";
+            Alert.alert("Error de inicio de sesión", mensajeError);
         }
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>CanchasApp</Text>
-            <TextInput 
-                style={styles.input} 
-                placeholder="Correo electrónico" 
-                value={correo}
-                onChangeText={setCorreo}
-                keyboardType="email-address"
-                autoCapitalize="none"
-            />
-            <TextInput 
-                style={styles.input} 
-                placeholder="Contraseña" 
-                value={contrasena}
-                onChangeText={setContrasena}
-                secureTextEntry 
-            />
-            <TouchableOpacity style={styles.button} onPress={handleLogin}>
-                <Text style={styles.buttonText}>Entrar</Text>
-            </TouchableOpacity>
+            <View style={styles.card}>
+                <Text style={styles.title}>Bienvenido</Text>
+                <Text style={styles.subtitle}>Accede y reserva tu cancha preferida en segundos.</Text>
+                <TextInput 
+                    style={styles.input} 
+                    placeholder="Correo electrónico" 
+                    placeholderTextColor={colors.placeholder}
+                    value={correo}
+                    onChangeText={setCorreo}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                />
+                <TextInput 
+                    style={styles.input} 
+                    placeholder="Contraseña" 
+                    placeholderTextColor={colors.placeholder}
+                    value={contrasena}
+                    onChangeText={setContrasena}
+                    secureTextEntry 
+                />
+                <TouchableOpacity style={styles.button} onPress={handleLogin}>
+                    <Text style={styles.buttonText}>Entrar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.registerLink} onPress={() => navigation.navigate('Register')}>
+                    <Text style={styles.linkText}>Crear una cuenta nueva</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#fff' },
-    title: { fontSize: 32, fontWeight: 'bold', textAlign: 'center', marginBottom: 40, color: '#2ecc71' },
-    input: { backgroundColor: '#f9f9f9', padding: 15, borderRadius: 10, marginBottom: 15, borderWidth: 1, borderColor: '#eee' },
-    button: { backgroundColor: '#2ecc71', padding: 15, borderRadius: 10, alignItems: 'center' },
-    buttonText: { color: '#fff', fontSize: 18, fontWeight: 'bold' }
+    container: {
+        ...globalStyles.screen,
+        justifyContent: 'center',
+        padding: spacing.lg,
+    },
+    card: {
+        ...globalStyles.card,
+        padding: spacing.xl,
+        borderRadius: radius.rounded,
+        backgroundColor: '#0d1834',
+    },
+    title: {
+        ...globalStyles.sectionTitle,
+        fontSize: 34,
+        marginBottom: spacing.xs,
+        color: colors.secondary,
+    },
+    subtitle: {
+        ...globalStyles.sectionSubtitle,
+        marginBottom: spacing.lg,
+        lineHeight: 22,
+    },
+    input: {
+        ...globalStyles.input,
+        marginBottom: spacing.sm,
+        color: colors.text,
+    },
+    button: {
+        ...globalStyles.button,
+        marginTop: spacing.md,
+    },
+    buttonText: {
+        ...globalStyles.buttonText,
+    },
+    registerLink: {
+        marginTop: spacing.md,
+        alignItems: 'center',
+    },
+    linkText: {
+        color: colors.accent,
+        fontSize: 15,
+        fontWeight: '700',
+    },
 });

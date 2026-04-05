@@ -26,12 +26,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         
         String path = request.getServletPath();
-        System.out.println("DEBUG: Entrando a ruta: " + path);
-
+        
+        // Rutas públicas no requieren autenticación
         if (path.startsWith("/api/auth") || 
             path.startsWith("/api/horarios") || 
             path.startsWith("/api/sedes") || 
-            path.startsWith("/api/canchas")) {
+            path.startsWith("/api/canchas") ||
+            path.startsWith("/api/tipos-cancha")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -52,7 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         } catch (Exception e) {
-            System.out.println("Error JWT: " + e.getMessage());
+            // Token inválido o expirado - continuar sin autenticación
         }
 
         filterChain.doFilter(request, response);

@@ -6,7 +6,11 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -28,7 +32,11 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        
+        if (sedeRepository.count() > 0 || tipoCanchaRepository.count() > 0 || canchaRepository.count() > 0 || horarioRepository.count() > 0) {
+            System.out.println(">> Datos iniciales ya existen. Se limpiarán duplicados de horarios existentes.");
+            limpiarHorariosDuplicados();
+            return;
+        }
 
         Sede norte = new Sede();
         norte.setNombre("Sede Norte");
@@ -87,5 +95,23 @@ public class DataInitializer implements CommandLineRunner {
         horarioRepository.saveAll(List.of(h1, h2, h3));
 
         System.out.println(">> Datos iniciales (Sedes, Tipos, Canchas y Horarios) cargados con éxito.");
+    }
+
+    private void limpiarHorariosDuplicados() {
+        List<Horario> horarios = horarioRepository.findAll();
+        Map<String, Horario> horariosUnicos = new LinkedHashMap<>();
+
+        for (Horario horario : horarios) {
+            String key = horario.getDiaSemana() + "|" + horario.getHoraInicio() + "|" + horario.getHoraFin();
+            horariosUnicos.putIfAbsent(key, horario);
+        }
+
+        Set<Long> idsParaConservar = horariosUnicos.values().stream()
+                .map(Horario::getId)
+                .collect(Collectors.toSet());
+
+        horarios.stream()
+                .filter(h -> !idsParaConservar.contains(h.getId()))
+                .forEach(h -> horarioRepository.deleteById(h.getId()));
     }
 }

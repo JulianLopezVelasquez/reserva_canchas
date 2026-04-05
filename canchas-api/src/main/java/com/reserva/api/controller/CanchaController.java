@@ -32,7 +32,6 @@ public class CanchaController {
                     .collect(Collectors.toList());
         }
 
-
         if (tipoId != null) {
             canchas = canchas.stream()
                     .filter(c -> c.getTipo().getId().equals(tipoId))
