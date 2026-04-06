@@ -1,11 +1,10 @@
 package com.reserva.api.model;
 
 import jakarta.persistence.*; 
-import lombok.Getter;        
-import lombok.Setter;        
+import lombok.Data;
 
 @Entity
-@Getter @Setter
+@Data
 public class TipoCancha {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

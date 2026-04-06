@@ -18,7 +18,6 @@ public class CanchaController {
         this.canchaRepository = canchaRepository;
     }
 
-
     @GetMapping
     public List<Cancha> listarCanchas(
             @RequestParam(required = false) Long sedeId,
@@ -28,14 +27,13 @@ public class CanchaController {
 
         if (sedeId != null) {
             canchas = canchas.stream()
-                    .filter(c -> c.getSede().getId().equals(sedeId))
+                    .filter(c -> c.getSede() != null && c.getSede().getId().equals(sedeId))
                     .collect(Collectors.toList());
         }
 
-
         if (tipoId != null) {
             canchas = canchas.stream()
-                    .filter(c -> c.getTipo().getId().equals(tipoId))
+                    .filter(c -> c.getTipo() != null && c.getTipo().getId().equals(tipoId))
                     .collect(Collectors.toList());
         }
 
@@ -46,5 +44,10 @@ public class CanchaController {
     public Cancha obtenerDetalle(@PathVariable Long id) {
         return canchaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cancha no encontrada"));
+    }
+
+    @PostMapping
+    public Cancha crearCancha(@RequestBody Cancha cancha) {
+        return canchaRepository.save(cancha);
     }
 }

@@ -3,6 +3,7 @@ package com.reserva.api.controller;
 import com.reserva.api.model.TipoCancha;
 import com.reserva.api.repository.TipoCanchaRepository;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
 import java.util.List;
 
 @RestController
@@ -14,6 +15,12 @@ public class TipoCanchaController {
 
     public TipoCanchaController(TipoCanchaRepository tipoCanchaRepository) {
         this.tipoCanchaRepository = tipoCanchaRepository;
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public TipoCancha crear(@RequestBody TipoCancha tipoCancha) {
+        return tipoCanchaRepository.save(tipoCancha);
     }
 
     @GetMapping

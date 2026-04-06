@@ -3,89 +3,41 @@ package com.reserva.api.component;
 import com.reserva.api.model.*;
 import com.reserva.api.repository.*;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-
-import java.time.LocalTime;
-import java.util.List;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
 
-    private final SedeRepository sedeRepository;
-    private final TipoCanchaRepository tipoCanchaRepository;
-    private final CanchaRepository canchaRepository;
-    private final HorarioRepository horarioRepository; 
+    private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public DataInitializer(SedeRepository sedeRepository, 
-                           TipoCanchaRepository tipoCanchaRepository, 
-                           CanchaRepository canchaRepository,
-                           HorarioRepository horarioRepository) {
-        this.sedeRepository = sedeRepository;
-        this.tipoCanchaRepository = tipoCanchaRepository;
-        this.canchaRepository = canchaRepository;
-        this.horarioRepository = horarioRepository;
+    public DataInitializer(UsuarioRepository usuarioRepository, 
+                           PasswordEncoder passwordEncoder) {
+        this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void run(String... args) throws Exception {
         
 
-        Sede norte = new Sede();
-        norte.setNombre("Sede Norte");
-        norte.setDireccion("Calle 100 #15-20");
-        
-        Sede sur = new Sede();
-        sur.setNombre("Sede Sur");
-        sur.setDireccion("Carrera 50 #10-30");
-        
-        sedeRepository.saveAll(List.of(norte, sur));
+        crearUsuarioSiNoExiste("Julián López", "julian@admin.com", "admin123");
 
-   
-        TipoCancha futbol = new TipoCancha();
-        futbol.setNombre("Fútbol");
-        
-        TipoCancha tenis = new TipoCancha();
-        tenis.setNombre("Tenis");
-        
-        tipoCanchaRepository.saveAll(List.of(futbol, tenis));
+        crearUsuarioSiNoExiste("Juan Admin", "juan@admin.com", "admin123");
 
+        System.out.println(">> Sistema listo. Base de datos de negocio vacía. Admins verificados.");
+    }
 
-        Cancha cancha1 = new Cancha();
-        cancha1.setNombre("Campín 5");
-        cancha1.setDescripcion("Cancha sintética de fútbol 5 con iluminación");
-        cancha1.setCapacidad(10);
-        cancha1.setImagen("https://link-a-tu-imagen.com/futbol.jpg");
-        cancha1.setSede(norte);
-        cancha1.setTipo(futbol);
-
-        Cancha cancha2 = new Cancha();
-        cancha2.setNombre("Grand Slam 1");
-        cancha2.setDescripcion("Cancha de polvo de ladrillo profesional");
-        cancha2.setCapacidad(4);
-        cancha2.setImagen("https://link-a-tu-imagen.com/tenis.jpg");
-        cancha2.setSede(sur);
-        cancha2.setTipo(tenis);
-
-        canchaRepository.saveAll(List.of(cancha1, cancha2));
-
-
-        Horario h1 = new Horario();
-        h1.setDiaSemana("Lunes");
-        h1.setHoraInicio(LocalTime.of(8, 0));
-        h1.setHoraFin(LocalTime.of(9, 0));
-
-        Horario h2 = new Horario();
-        h2.setDiaSemana("Lunes");
-        h2.setHoraInicio(LocalTime.of(9, 0));
-        h2.setHoraFin(LocalTime.of(10, 0));
-
-        Horario h3 = new Horario();
-        h3.setDiaSemana("Lunes");
-        h3.setHoraInicio(LocalTime.of(10, 0));
-        h3.setHoraFin(LocalTime.of(11, 0));
-
-        horarioRepository.saveAll(List.of(h1, h2, h3));
-
-        System.out.println(">> Datos iniciales (Sedes, Tipos, Canchas y Horarios) cargados con éxito.");
+    private void crearUsuarioSiNoExiste(String nombre, String correo, String password) {
+        if (usuarioRepository.findByCorreo(correo).isEmpty()) {
+            Usuario admin = new Usuario();
+            admin.setNombre(nombre);
+            admin.setCorreo(correo);
+            admin.setContrasena(passwordEncoder.encode(password)); 
+            admin.setRol("ROLE_ADMIN"); 
+            usuarioRepository.save(admin);
+            System.out.println(" ✅ ACCESO GARANTIZADO PARA: " + correo);
+        }
     }
 }

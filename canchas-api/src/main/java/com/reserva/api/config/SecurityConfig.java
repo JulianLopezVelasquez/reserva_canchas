@@ -33,7 +33,18 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                .requestMatchers("/api/auth/**", "/api/horarios/**", "/api/sedes/**", "/api/canchas/**", "/h2-console/**").permitAll()
+                .requestMatchers(
+                    "/api/auth/**",
+                    "/api/horarios",
+                    "/api/horarios/**",
+                    "/api/sedes",
+                    "/api/sedes/**",
+                    "/api/canchas",
+                    "/api/canchas/**",
+                    "/api/tipos-cancha",
+                    "/api/tipos-cancha/**",
+                    "/h2-console/**"
+                ).permitAll()
                 .anyRequest().authenticated()
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
